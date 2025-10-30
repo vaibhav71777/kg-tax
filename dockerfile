@@ -1,23 +1,25 @@
-# Base image with both Node and Python
+# Use Node with Python preinstalled
 FROM node:18-bullseye
 
 # Set workdir
 WORKDIR /app
 
-# Copy backend
+# --- Backend setup ---
 COPY backend ./backend
-WORKDIR /app/backend
 RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r backend/requirements.txt
 
-# Copy frontend
-WORKDIR /app/frontend
+# --- Frontend setup ---
 COPY frontend ./frontend
-RUN npm install && npm run build
+WORKDIR /app/frontend
+RUN npm install
+RUN npm run build
 
-# Serve frontend and backend
-WORKDIR /app
+# --- Serve built frontend via Flask backend ---
+WORKDIR /app/backend
 COPY backend/app.py .
+
+# Flask listens on port 5000
 EXPOSE 5000
 
-CMD python3 backend/app.py
+CMD ["python3", "app.py"]

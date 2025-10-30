@@ -1,14 +1,20 @@
-import os
-from flask import Flask, jsonify
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 CORS(app)
 
 @app.route('/')
+def serve_frontend():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def static_proxy(path):
+    return send_from_directory(app.static_folder, path)
+
+@app.route('/api')
 def home():
-    return jsonify({"message": "Welcome to Project KG Prototype — Backend is live!"})
+    return {"message": "Welcome to Project KG Prototype — Backend is live!"}
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Railway assigns a dynamic port
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5000)
